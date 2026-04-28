@@ -4,25 +4,11 @@ FlowState is an interactive workflow builder that allows users to visually creat
 
 ## Preview
 
-Add screenshot here:
-
-```md
-![FlowState workflow builder preview](./path-to-screenshot.png)
-```
+![FlowState workflow builder preview](./docs/assets/flowstate-preview.png)
 
 ## Screen Recording
 
-Add screen recording here:
-
-```md
-https://github.com/user-attachments/assets/your-recording-id
-```
-
-Or, if the recording is committed to the repo:
-
-```md
-https://github.com/oliverjayden20/FlowState/assets/path-to-demo-video.mp4
-```
+![FlowState workflow builder demo](./docs/assets/flowstate-demo.gif)
 
 ## Features
 
@@ -48,24 +34,28 @@ https://github.com/oliverjayden20/FlowState/assets/path-to-demo-video.mp4
 
 ```text
 Flow_State/
-├── .gitignore
-├── README.md
-├── eslint.config.js
-├── index.html
-├── package-lock.json
-├── package.json
-├── vite.config.js
-├── public/
-│   ├── favicon.svg
-│   └── icons.svg
-└── src/
-    ├── App.jsx
-    ├── index.css
-    ├── main.jsx
-    └── assets/
-        ├── hero.png
-        ├── react.svg
-        └── vite.svg
+|-- .gitignore
+|-- README.md
+|-- eslint.config.js
+|-- index.html
+|-- package-lock.json
+|-- package.json
+|-- vite.config.js
+|-- docs/
+|   `-- assets/
+|       |-- flowstate-demo.gif
+|       `-- flowstate-preview.png
+|-- public/
+|   |-- favicon.svg
+|   `-- icons.svg
+`-- src/
+    |-- App.jsx
+    |-- index.css
+    |-- main.jsx
+    `-- assets/
+        |-- hero.png
+        |-- react.svg
+        `-- vite.svg
 ```
 
 ## Run Locally
