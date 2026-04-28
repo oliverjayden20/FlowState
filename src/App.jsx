@@ -32,6 +32,13 @@ import {
   Keyboard,
   LayoutDashboard,
   LayoutGrid,
+  Maximize2,
+  PanelBottomClose,
+  PanelBottomOpen,
+  PanelLeftClose,
+  PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
   Play,
   PlugZap,
   RotateCcw,
@@ -208,6 +215,9 @@ function FlowStateApp() {
   const [isRunning, setIsRunning] = useState(false)
   const [commandOpen, setCommandOpen] = useState(false)
   const [commandQuery, setCommandQuery] = useState('')
+  const [libraryOpen, setLibraryOpen] = useState(true)
+  const [inspectorOpen, setInspectorOpen] = useState(true)
+  const [logsOpen, setLogsOpen] = useState(true)
 
   const validation = useMemo(() => validateWorkflow(nodes, edges), [nodes, edges])
   const nodeWarnings = useMemo(() => {
@@ -610,19 +620,34 @@ function FlowStateApp() {
         validation={validation}
         onRun={runWorkflow}
         onSave={saveWorkflow}
-        onLoad={loadWorkflow}
-        onReset={resetWorkflow}
-        onExport={exportWorkflow}
-        onImport={openImportPicker}
         onLayout={layoutWorkflow}
         onCommand={() => setCommandOpen(true)}
       />
 
-      <main className="grid min-h-0 flex-1 grid-cols-[292px_minmax(0,1fr)_360px] border-y border-slate-800/80 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.12),transparent_34%),radial-gradient(circle_at_top_right,rgba(168,85,247,0.11),transparent_30%),#0B0F1A]">
-        <NodeLibrary onDragStart={onDragStart} onTemplate={(template) => loadGraph(template.nodes, template.edges, `Loaded template: ${template.name}.`)} />
+      <main
+        className="grid min-h-0 flex-1 border-y border-slate-800/80 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.12),transparent_34%),radial-gradient(circle_at_top_right,rgba(168,85,247,0.11),transparent_30%),#0B0F1A] transition-[grid-template-columns] duration-300"
+        style={{
+          gridTemplateColumns: `${libraryOpen ? '292px' : '68px'} minmax(0,1fr) ${inspectorOpen ? '360px' : '68px'}`,
+        }}
+      >
+        <NodeLibrary
+          collapsed={!libraryOpen}
+          onToggle={() => setLibraryOpen((current) => !current)}
+          onDragStart={onDragStart}
+          onTemplate={(template) => loadGraph(template.nodes, template.edges, `Loaded template: ${template.name}.`)}
+        />
 
         <section className="relative min-w-0 overflow-hidden border-x border-slate-800/80">
           <CanvasHud nodes={nodes} edges={edges} validation={validation} />
+          <CanvasQuickActions
+            libraryOpen={libraryOpen}
+            inspectorOpen={inspectorOpen}
+            logsOpen={logsOpen}
+            onToggleLibrary={() => setLibraryOpen((current) => !current)}
+            onToggleInspector={() => setInspectorOpen((current) => !current)}
+            onToggleLogs={() => setLogsOpen((current) => !current)}
+            onFit={() => fitView({ padding: 0.18, duration: 420 })}
+          />
           <div className="h-full w-full">
             <ReactFlow
               nodes={displayNodes}
@@ -662,6 +687,8 @@ function FlowStateApp() {
         </section>
 
         <PropertiesPanel
+          collapsed={!inspectorOpen}
+          onToggle={() => setInspectorOpen((current) => !current)}
           selectedNode={selectedNode}
           validation={validation}
           updateNode={updateSelectedNode}
@@ -670,7 +697,7 @@ function FlowStateApp() {
         />
       </main>
 
-      <ExecutionLog logs={logs} isRunning={isRunning} />
+      <ExecutionLog logs={logs} isRunning={isRunning} collapsed={!logsOpen} onToggle={() => setLogsOpen((current) => !current)} />
       <ToastStack toasts={toasts} />
       <CommandPalette
         open={commandOpen}
@@ -684,7 +711,7 @@ function FlowStateApp() {
   )
 }
 
-function TopBar({ isRunning, validation, onRun, onSave, onLoad, onReset, onExport, onImport, onLayout, onCommand }) {
+function TopBar({ isRunning, validation, onRun, onSave, onLayout, onCommand }) {
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b border-cyan-300/10 bg-slate-950/92 px-5 shadow-2xl shadow-black/30 backdrop-blur-xl">
       <div className="flex min-w-0 items-center gap-3">
@@ -699,13 +726,9 @@ function TopBar({ isRunning, validation, onRun, onSave, onLoad, onReset, onExpor
 
       <div className="flex items-center gap-2">
         <StatusPill validation={validation} />
-        <ToolbarButton icon={Command} label="Command" onClick={onCommand} />
-        <ToolbarButton icon={Upload} label="Load" onClick={onLoad} />
         <ToolbarButton icon={Save} label="Save" onClick={onSave} />
-        <ToolbarButton icon={Download} label="Export" onClick={onExport} />
-        <ToolbarButton icon={FileJson} label="Import" onClick={onImport} />
         <ToolbarButton icon={LayoutDashboard} label="Layout" onClick={onLayout} />
-        <ToolbarButton icon={RotateCcw} label="Reset" onClick={onReset} />
+        <ToolbarButton icon={Command} label="Command" onClick={onCommand} />
         <motion.button
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
@@ -756,12 +779,52 @@ function ToolbarButton({ icon: Icon, label, onClick }) {
   )
 }
 
-function NodeLibrary({ onDragStart, onTemplate }) {
+function IconButton({ icon: Icon, label, onClick }) {
+  return (
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.96 }}
+      onClick={onClick}
+      title={label}
+      className="grid size-9 shrink-0 place-items-center rounded-xl border border-slate-800 bg-slate-900/82 text-slate-300 transition hover:border-cyan-300/30 hover:bg-slate-800 hover:text-white"
+    >
+      <Icon size={17} />
+    </motion.button>
+  )
+}
+
+function NodeLibrary({ collapsed, onToggle, onDragStart, onTemplate }) {
+  if (collapsed) {
+    return (
+      <aside className="flex min-h-0 flex-col items-center gap-3 bg-slate-950/78 py-4 backdrop-blur-xl">
+        <IconButton icon={PanelLeftOpen} label="Open library" onClick={onToggle} />
+        <div className="h-px w-9 bg-slate-800" />
+        {nodeCatalog.map((item) => (
+          <motion.div
+            key={item.type}
+            draggable
+            onDragStart={(event) => onDragStart(event, item)}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.96 }}
+            title={item.label}
+            className="grid size-11 cursor-grab place-items-center rounded-xl border border-slate-800 bg-slate-900/80 transition hover:border-cyan-300/35 active:cursor-grabbing"
+            style={{ color: item.color, boxShadow: `0 0 20px ${item.color}10` }}
+          >
+            <item.icon size={19} />
+          </motion.div>
+        ))}
+      </aside>
+    )
+  }
+
   return (
     <aside className="min-h-0 overflow-y-auto bg-slate-950/72 p-4 backdrop-blur-xl">
-      <div className="mb-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200/80">Node Library</p>
-        <h2 className="mt-2 text-xl font-semibold text-white">Build blocks</h2>
+      <div className="mb-5 flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200/80">Node Library</p>
+          <h2 className="mt-2 text-xl font-semibold text-white">Build blocks</h2>
+        </div>
+        <IconButton icon={PanelLeftClose} label="Collapse library" onClick={onToggle} />
       </div>
 
       <div className="space-y-3">
@@ -813,24 +876,27 @@ function NodeLibrary({ onDragStart, onTemplate }) {
           ))}
         </div>
       </div>
-
-      <div className="mt-6 rounded-2xl border border-cyan-300/15 bg-cyan-400/5 p-4">
-        <div className="flex items-center gap-2 text-sm font-medium text-cyan-100">
-          <Keyboard size={16} />
-          Shortcuts
-        </div>
-        <div className="mt-3 grid grid-cols-[1fr_auto] gap-x-3 gap-y-2 text-xs text-slate-400">
-          <span>Command palette</span>
-          <kbd className="kbd">Ctrl K</kbd>
-          <span>Run workflow</span>
-          <kbd className="kbd">Ctrl Enter</kbd>
-          <span>Duplicate node</span>
-          <kbd className="kbd">Ctrl D</kbd>
-          <span>Clean layout</span>
-          <kbd className="kbd">L</kbd>
-        </div>
-      </div>
+      <CompactShortcuts />
     </aside>
+  )
+}
+
+function CompactShortcuts() {
+  return (
+    <div className="mt-6 rounded-2xl border border-cyan-300/15 bg-cyan-400/5 p-4">
+      <div className="flex items-center gap-2 text-sm font-medium text-cyan-100">
+        <Keyboard size={16} />
+        Shortcuts
+      </div>
+      <div className="mt-3 grid grid-cols-[1fr_auto] gap-x-3 gap-y-2 text-xs text-slate-400">
+        <span>Command palette</span>
+        <kbd className="kbd">Ctrl K</kbd>
+        <span>Run workflow</span>
+        <kbd className="kbd">Ctrl Enter</kbd>
+        <span>Clean layout</span>
+        <kbd className="kbd">L</kbd>
+      </div>
+    </div>
   )
 }
 
@@ -846,6 +912,25 @@ function CanvasHud({ nodes, edges, validation }) {
           {nodes.length} nodes / {edges.length} connections / {validation.issues.length} findings
         </p>
       </div>
+    </div>
+  )
+}
+
+function CanvasQuickActions({
+  libraryOpen,
+  inspectorOpen,
+  logsOpen,
+  onToggleLibrary,
+  onToggleInspector,
+  onToggleLogs,
+  onFit,
+}) {
+  return (
+    <div className="absolute right-5 top-5 z-10 flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-950/72 p-1.5 shadow-2xl shadow-black/30 backdrop-blur-xl">
+      <IconButton icon={libraryOpen ? PanelLeftClose : PanelLeftOpen} label="Toggle library" onClick={onToggleLibrary} />
+      <IconButton icon={inspectorOpen ? PanelRightClose : PanelRightOpen} label="Toggle inspector" onClick={onToggleInspector} />
+      <IconButton icon={logsOpen ? PanelBottomClose : PanelBottomOpen} label="Toggle logs" onClick={onToggleLogs} />
+      <IconButton icon={Maximize2} label="Fit workflow" onClick={onFit} />
     </div>
   )
 }
@@ -940,9 +1025,44 @@ function NodeStatus({ status }) {
   )
 }
 
-function PropertiesPanel({ selectedNode, validation, updateNode, onDuplicate, onDelete }) {
+function PropertiesPanel({ collapsed, onToggle, selectedNode, validation, updateNode, onDuplicate, onDelete }) {
+  if (collapsed) {
+    return (
+      <aside className="flex min-h-0 flex-col items-center gap-3 bg-slate-950/78 py-4 backdrop-blur-xl">
+        <IconButton icon={PanelRightOpen} label="Open inspector" onClick={onToggle} />
+        <div className="h-px w-9 bg-slate-800" />
+        <div
+          className={clsx(
+            'grid size-11 place-items-center rounded-xl border',
+            validation.blocking.length
+              ? 'border-rose-300/25 bg-rose-400/10 text-rose-200'
+              : validation.warnings.length
+                ? 'border-amber-300/25 bg-amber-300/10 text-amber-100'
+                : 'border-emerald-300/25 bg-emerald-300/10 text-emerald-200',
+          )}
+          title="Validation status"
+        >
+          {validation.blocking.length ? <AlertTriangle size={18} /> : <Check size={18} />}
+        </div>
+        {selectedNode && (
+          <div
+            className="grid size-11 place-items-center rounded-xl border border-slate-800 bg-slate-900/80"
+            style={{ color: selectedNode.data.color }}
+            title={selectedNode.data.label}
+          >
+            <DatabaseZap size={18} />
+          </div>
+        )}
+      </aside>
+    )
+  }
+
   return (
     <aside className="min-h-0 overflow-y-auto bg-slate-950/72 p-4 backdrop-blur-xl">
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-fuchsia-200/80">Inspector</p>
+        <IconButton icon={PanelRightClose} label="Collapse inspector" onClick={onToggle} />
+      </div>
       <ValidationPanel validation={validation} />
       <AnimatePresence mode="wait">
         {selectedNode ? (
@@ -1171,7 +1291,20 @@ function Select({ value, onChange, options }) {
   )
 }
 
-function ExecutionLog({ logs, isRunning }) {
+function ExecutionLog({ logs, isRunning, collapsed, onToggle }) {
+  if (collapsed) {
+    return (
+      <footer className="flex h-11 shrink-0 items-center justify-between border-t border-slate-800 bg-slate-950/94 px-4">
+        <div className="flex items-center gap-2 text-sm font-semibold text-slate-200">
+          <Terminal size={16} className="text-cyan-200" />
+          Execution Logs
+          <span className={clsx('ml-2 size-2 rounded-full', isRunning ? 'bg-cyan-300 shadow-[0_0_12px_#67e8f9]' : 'bg-slate-600')} />
+        </div>
+        <IconButton icon={PanelBottomOpen} label="Open logs" onClick={onToggle} />
+      </footer>
+    )
+  }
+
   return (
     <footer className="h-36 shrink-0 border-t border-slate-800 bg-slate-950/94 px-4 py-3">
       <div className="mb-2 flex items-center justify-between">
@@ -1179,9 +1312,12 @@ function ExecutionLog({ logs, isRunning }) {
           <Terminal size={16} className="text-cyan-200" />
           Execution Logs
         </div>
-        <div className="flex items-center gap-2 text-xs text-slate-400">
-          <span className={clsx('size-2 rounded-full', isRunning ? 'bg-cyan-300 shadow-[0_0_12px_#67e8f9]' : 'bg-slate-600')} />
-          {isRunning ? 'Streaming' : 'Idle'}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-xs text-slate-400">
+            <span className={clsx('size-2 rounded-full', isRunning ? 'bg-cyan-300 shadow-[0_0_12px_#67e8f9]' : 'bg-slate-600')} />
+            {isRunning ? 'Streaming' : 'Idle'}
+          </div>
+          <IconButton icon={PanelBottomClose} label="Collapse logs" onClick={onToggle} />
         </div>
       </div>
       <div className="h-[86px] overflow-y-auto rounded-xl border border-slate-800 bg-[#080c14] p-3">
