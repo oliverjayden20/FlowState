@@ -8,7 +8,7 @@ FlowState is an interactive workflow builder that allows users to visually creat
 
 ## Screen Recording
 
-![FlowState workflow builder demo](./docs/assets/flowstate-demo.gif)
+[Watch the FlowState demo video](./docs/assets/flowstate-demo.mp4)
 
 ## Features
 
@@ -43,7 +43,7 @@ Flow_State/
 |-- vite.config.js
 |-- docs/
 |   `-- assets/
-|       |-- flowstate-demo.gif
+|       |-- flowstate-demo.mp4
 |       `-- flowstate-preview.png
 |-- public/
 |   |-- favicon.svg
