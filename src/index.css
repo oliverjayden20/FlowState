@@ -1,0 +1,131 @@
+@import "tailwindcss";
+@import "@xyflow/react/dist/style.css";
+
+:root {
+  color-scheme: dark;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: #0b0f1a;
+  color: #e5edf8;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-width: 320px;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0c1220;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid #0c1220;
+  border-radius: 999px;
+  background: #26324a;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #385079;
+}
+
+@layer components {
+  .input {
+    @apply w-full rounded-xl border border-slate-700/80 bg-slate-900/86 px-3 py-2.5 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 hover:border-slate-600 focus:border-cyan-300/70 focus:bg-slate-900 focus:shadow-[0_0_0_3px_rgba(34,211,238,0.12)];
+  }
+
+  .kbd {
+    @apply rounded-md border border-slate-700 bg-slate-900 px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase text-slate-400;
+  }
+}
+
+.react-flow__pane {
+  cursor: grab;
+}
+
+.react-flow__pane.dragging {
+  cursor: grabbing;
+}
+
+.react-flow__attribution {
+  display: none;
+}
+
+.react-flow__controls {
+  overflow: hidden;
+  border: 1px solid rgba(93, 124, 186, 0.24);
+  border-radius: 12px;
+  background: rgba(11, 16, 29, 0.78);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.34);
+}
+
+.react-flow__controls button {
+  border-bottom: 1px solid rgba(93, 124, 186, 0.16);
+  background: rgba(13, 20, 36, 0.88);
+  color: #dce8ff;
+}
+
+.react-flow__controls button:hover {
+  background: rgba(31, 51, 88, 0.95);
+}
+
+.react-flow__minimap {
+  border: 1px solid rgba(93, 124, 186, 0.2);
+  border-radius: 16px;
+  background: rgba(11, 16, 29, 0.74);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.34);
+}
+
+.react-flow__edge-path {
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.38));
+}
+
+.react-flow__connection-path {
+  stroke: #67e8f9;
+  stroke-width: 2.4;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.48));
+}
+
+.edge-running .react-flow__edge-path {
+  stroke-dasharray: 10 8;
+  animation: dash-flow 0.72s linear infinite;
+  filter: drop-shadow(0 0 12px rgba(103, 232, 249, 0.65));
+}
+
+.edge-complete .react-flow__edge-path {
+  filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.45));
+}
+
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
