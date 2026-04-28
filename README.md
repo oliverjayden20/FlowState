@@ -1,18 +1,72 @@
 # FlowState
 
-FlowState is a polished visual workflow builder built with React, React Flow, Tailwind CSS, and Framer Motion. It focuses on frontend interaction quality: graph editing, circuit-style execution, validation, animations, command-driven controls, and local workflow persistence.
+FlowState is an interactive workflow builder that allows users to visually create logic flows using a node-based interface.
+
+## Preview
+
+Add screenshot here:
+
+```md
+![FlowState workflow builder preview](./path-to-screenshot.png)
+```
+
+## Screen Recording
+
+Add screen recording here:
+
+```md
+https://github.com/user-attachments/assets/your-recording-id
+```
+
+Or, if the recording is committed to the repo:
+
+```md
+https://github.com/oliverjayden20/FlowState/assets/path-to-demo-video.mp4
+```
 
 ## Features
 
-- Drag-and-drop node library for Start, API Call, Delay, Condition, Transform, and Output nodes
-- React Flow canvas with pan, zoom, minimap, snapping, custom nodes, and animated edges
-- Circuit-style workflow execution where nodes fire only after required incoming signals arrive
-- Delay nodes hold outgoing signals for the configured amount before downstream execution continues
-- `WAITING`, `DELAYING`, `RUNNING`, and `COMPLETE` visual states
-- Workflow validation with blocking errors, warnings, and node badges
-- Node inspector with type-specific editable configuration
-- Local save/load, JSON export/import, workflow templates, and clean auto-layout
-- Command palette and keyboard shortcuts for editor-grade workflows
+- Drag-and-drop node system
+- Visual workflow connections
+- Circuit-style execution preview
+- Delay nodes that hold outgoing workflow signals
+- Node configuration panel
+- Workflow validation states
+- Collapsible side panels
+- Command palette and keyboard shortcuts
+- Local save/load and JSON import/export
+
+## Tech Stack
+
+- React
+- React Flow
+- Tailwind CSS
+- Framer Motion
+- Vite
+
+## File Structure
+
+```text
+Flow_State/
+├── .gitignore
+├── README.md
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+├── vite.config.js
+├── public/
+│   ├── favicon.svg
+│   └── icons.svg
+└── src/
+    ├── App.jsx
+    ├── index.css
+    ├── main.jsx
+    └── assets/
+        ├── hero.png
+        ├── react.svg
+        └── vite.svg
+```
 
 ## Run Locally
 
@@ -29,16 +83,3 @@ Open the local URL printed by Vite, usually `http://localhost:5173`.
 npm run lint
 npm run build
 ```
-
-## Demo Checklist
-
-1. Load a template from the sidebar.
-2. Drag a node from the library onto the canvas.
-3. Connect nodes by dragging from one handle to another.
-4. Select a node and edit its properties in the inspector.
-5. Run the workflow and watch signals move through the graph.
-6. Add a Delay branch and confirm downstream nodes wait for the delayed signal.
-7. Press `Ctrl+K` to open the command palette.
-8. Save, reset, then load the workflow from local storage.
-9. Export JSON, reset the canvas, then import the JSON again.
-10. Press `L` or click Layout to clean up the graph.
